@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Books.Data;
 using Books.Models;
+using System;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Books.Controllers
 {
@@ -20,9 +19,27 @@ namespace Books.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string moieGenre, string searchString)
         {
-            return View(await _context.Book.ToListAsync());
+            IQueryable<string> genreQuery = from m in _context.Book
+                                            orderby m.Genre
+                                            select m.Genre;
+
+            var books = from m in _context.Book
+                        select m;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                books = books.Where(s => s.Title.Contains(searchString));
+            }
+
+            var bookGenreVM = new BookGenereViewModel
+            {
+                Genres = new SelectList(await genreQuery.Distinct().ToListAsync()),
+                Books = await books.ToListAsync()
+            };
+
+            return View(bookGenreVM);
         }
 
         // GET: Books/Details/5
