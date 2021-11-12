@@ -19,7 +19,7 @@ namespace Books.Controllers
         }
 
         // GET: Books
-        public async Task<IActionResult> Index(string moieGenre, string searchString)
+        public async Task<IActionResult> Index(string bookGenre, string searchString)
         {
             IQueryable<string> genreQuery = from m in _context.Book
                                             orderby m.Genre
@@ -31,6 +31,11 @@ namespace Books.Controllers
             if (!String.IsNullOrEmpty(searchString))
             {
                 books = books.Where(s => s.Title.Contains(searchString));
+            }
+
+            if (!String.IsNullOrEmpty(bookGenre))
+            {
+                books = books.Where(g => g.Genre == bookGenre);
             }
 
             var bookGenreVM = new BookGenereViewModel
